@@ -108,22 +108,24 @@ func (m *MCPService) InvokeTool(ctx context.Context, name string, args map[strin
 	// But if the tool returns any other type of object (string, map, number, etc), then it is
 	// completely available in Content[0].
 
-	textContent := make([]string, 0, len(callToolResp.Content))
+	// Convert the Content field from []mcp.Content to []map[string]any to pass downstream.
+	contentList := make([]map[string]any, 0, len(callToolResp.Content))
 	for _, item := range callToolResp.Content {
-		var value string
-		tc, ok := mcp.AsTextContent(item)
-		if ok {
-			value = tc.Text
-		} else {
-			value = fmt.Sprintf("<failed to decode item into string>: %v", item)
+		data, err := json.Marshal(item)
+		if err != nil {
+			continue
 		}
-		textContent = append(textContent, value)
+		var m map[string]any
+		if err := json.Unmarshal(data, &m); err != nil {
+			continue
+		}
+		contentList = append(contentList, m)
 	}
 
 	result := &types.ToolInvokeResult{
-		Meta:        callToolResp.Meta,
-		IsError:     callToolResp.IsError,
-		TextContent: textContent,
+		Meta:    callToolResp.Meta,
+		IsError: callToolResp.IsError,
+		Content: contentList,
 	}
 	return result, nil
 }

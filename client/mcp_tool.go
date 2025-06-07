@@ -23,9 +23,9 @@ type Tool struct {
 }
 
 type ToolInvokeResult struct {
-	Meta        map[string]any `json:"_meta,omitempty"`
-	IsError     bool           `json:"isError,omitempty"`
-	TextContent []string       `json:"textContent"`
+	Meta    map[string]any   `json:"_meta,omitempty"`
+	IsError bool             `json:"isError,omitempty"`
+	Content []map[string]any `json:"content"`
 }
 
 // ListTools fetches the list of tools, optionally filtered by server name.
