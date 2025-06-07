@@ -41,11 +41,26 @@ func runInvokeTool(cmd *cobra.Command, args []string) error {
 		fmt.Println("Response from tool:")
 	}
 
-	// result text needs to be printed regardless of whether the tool returned an error or not
+	// result Content needs to be printed regardless of whether the tool returned an error or not
 	// because it may contain useful information
 	fmt.Println()
-	for _, text := range result.TextContent {
-		fmt.Println(text)
+	for _, c := range result.Content {
+		cType, ok := c["type"]
+		if !ok {
+			return fmt.Errorf("content item does not have a 'type' field: %v", c)
+		}
+		switch cType {
+		case "text":
+			textContent, ok := c["text"]
+			if !ok {
+				return fmt.Errorf("text content item does not have a 'text' field: %v", c)
+			}
+			fmt.Println(textContent)
+		case "image":
+			// todo
+		case "audio":
+			// todo
+		}
 	}
 
 	return nil
